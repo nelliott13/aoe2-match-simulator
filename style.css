@@ -353,7 +353,7 @@ thead th {
   pointer-events: none;
   transform: translateY(-6px);
   transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 80;
+  z-index: 9999;
 }
 
 .has-tooltip:hover .help-tooltip,

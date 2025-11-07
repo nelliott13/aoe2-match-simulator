@@ -218,12 +218,12 @@ async function runSimulation({ playerCount, matchCount, kFactor, matchmakingMode
 
   const speed = speedSelect.value;
   const delayMap = {
-    fast: 6,
+    fast: 0,
     medium: 16,
     slow: 32
   };
   const batchMap = {
-    fast: 30,
+    fast: 80,
     medium: 20,
     slow: 10
   };
