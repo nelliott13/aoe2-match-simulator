@@ -108,8 +108,8 @@ simulateBtn.addEventListener("click", () => {
   if (currentState.running) {
     return;
   }
-  const playerCount = Number(document.querySelector("#playerCount").value) || 1000;
-  const matchCount = Number(document.querySelector("#matchCount").value) || 5000;
+  const playerCount = Number(document.querySelector("#playerCount").value) || 3000;
+  const matchCount = Number(document.querySelector("#matchCount").value) || 25000;
   const kFactor = Number(document.querySelector("#kFactor").value) || 24;
   const matchmakingMode = (matchmakingSelect?.value ?? "elo").toLowerCase();
 
