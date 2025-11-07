@@ -298,6 +298,7 @@ thead {
   top: 0;
   background: rgba(13, 17, 23, 0.95);
   backdrop-filter: blur(8px);
+  z-index: 1;
 }
 
 thead th {

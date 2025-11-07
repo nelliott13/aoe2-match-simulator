@@ -48,6 +48,20 @@
       <button id="simulateBtn" class="simulate-btn">Run Simulation</button>
     </section>
 
+    <section class="panel params-panel">
+      <header class="panel-header">
+        <h2>Simulation Parameters</h2>
+      </header>
+      <ul class="params-list">
+        <li>ELO player drift assigned matching a typical skill distribution curve found in competitive games.</li>
+        <li>In ELO matchmaking, players match against opponents within 100 ELO whenever possible.</li>
+        <li>Each simulated match randomly assigns civilizations to both players; mirrors are allowed.</li>
+        <li>Random matchmaking ignores ELO pairings and relies solely on civilization strength for outcomes.</li>
+        <li>The civ strength spread control exaggerates or flattens balance differences before each simulation.</li>
+        <li>Visualization updates stream in batches so progress feels alive without instant jumps.</li>
+      </ul>
+    </section>
+
     <section class="panel status">
       <div class="status-item">
         <span class="label">Matches Simulated</span>
@@ -65,20 +79,6 @@
         <div class="progress-bar" id="progressBar"></div>
       </div>
       <div class="status-log" id="statusLog">Ready.</div>
-    </section>
-
-    <section class="panel params-panel">
-      <header class="panel-header">
-        <h2>Simulation Parameters</h2>
-      </header>
-      <ul class="params-list">
-        <li>ELO player drift assigned matching a typical skill distribution curve found in competitive games.</li>
-        <li>In ELO matchmaking, players match against opponents within 100 ELO whenever possible.</li>
-        <li>Each simulated match randomly assigns civilizations to both players; mirrors are allowed.</li>
-        <li>Random matchmaking ignores ELO pairings and relies solely on civilization strength for outcomes.</li>
-        <li>The civ strength spread control exaggerates or flattens balance differences before each simulation.</li>
-        <li>Visualization updates stream in batches so progress feels alive without instant jumps.</li>
-      </ul>
     </section>
 
     <section class="panel table-panel">
@@ -124,7 +124,7 @@
     </section>
   </main>
 
-  <footer class="footer">Simulated data &mdash; inspired by the ebb and flow of competitive ladder games.</footer>
+  <footer class="footer">Created by ForgeableSum and inspired by the compulsive desire to prove neckbeards wrong on the internet. No rights reserved.</footer>
 
   <script src="script.js"></script>
 </body>
