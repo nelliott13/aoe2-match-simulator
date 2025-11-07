@@ -10,7 +10,7 @@
   <main class="app">
     <header class="panel header">
       <h1>AoE II Civilization Win Rate Simulator</h1>
-      <p class="subtitle">Observe how ELO matchmaking keeps civilizations hovering near 50% win rate.</p>
+      <p class="subtitle">Observe how ELO matchmaking keeps civilizations hovering near 50% win rate, regardless of how strong or weak they are.</p>
     </header>
 
     <section class="panel controls">
@@ -42,6 +42,19 @@
         </select>
       </div>
       <button id="simulateBtn" class="simulate-btn">Run Simulation</button>
+    </section>
+
+    <section class="panel params-panel">
+      <header class="panel-header">
+        <h2>Simulation Parameters</h2>
+      </header>
+      <ul class="params-list">
+        <li>ELO player drift assigned matching a typical skill distribution curve found in competitive games.</li>
+        <li>In ELO matchmaking, players match against opponents within 100 ELO whenever possible.</li>
+        <li>Each simulated match randomly assigns civilizations to both players; mirrors are allowed.</li>
+        <li>Random matchmaking ignores ELO pairings and relies solely on civilization strength for outcomes.</li>
+        <li>Visualization updates stream in batches so progress feels alive without instant jumps.</li>
+      </ul>
     </section>
 
     <section class="panel status">
@@ -76,10 +89,11 @@
               <th>
                 Strength
                 <span class="help-icon" role="img" aria-label="Strength help" tabindex="0">?</span>
-                <span class="help-tooltip" role="tooltip">
-                  Strength is a notional balance factor. In a matchup it influences win odds, e.g. a 0.70 strength civ versus a 0.50 strength civ would expect about a 58% win chance.
-                </span>
+                  <span class="help-tooltip" role="tooltip">
+                    Strength is a notional balance factor. In a matchup it influences win odds, e.g. a 0.70 strength civ versus a 0.50 strength civ would expect roughly a 58% win chance.
+                  </span>
               </th>
+              <th>Expected (Strength)</th>
               <th>Win Rate</th>
               <th>Matches</th>
             </tr>

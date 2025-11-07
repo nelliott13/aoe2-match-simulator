@@ -57,6 +57,8 @@ const civs = CIV_NAMES.map((name, index) => {
   };
 });
 
+const expectedRandomWinRates = computeExpectedRandomWinRates(civs);
+
 const tableBody = document.querySelector("#civTable tbody");
 const simulateBtn = document.querySelector("#simulateBtn");
 const matchTicker = document.querySelector("#matchTicker");
@@ -106,6 +108,7 @@ function initialize() {
     .sort((a, b) => b.strength - a.strength)
     .forEach((civ) => {
       const row = document.createElement("tr");
+      const expectedRate = expectedRandomWinRates.get(civ.name) ?? 0.5;
       row.innerHTML = `
         <td class="civ-name">${civ.name}</td>
         <td>
@@ -114,6 +117,7 @@ function initialize() {
           </div>
           <small>${civ.strength.toFixed(3)}</small>
         </td>
+        <td class="expected-rate" data-civ="${civ.name}">${(expectedRate * 100).toFixed(1)}%</td>
         <td class="win-rate" data-civ="${civ.name}">--</td>
         <td class="match-count" data-civ="${civ.name}">0</td>
       `;
@@ -182,16 +186,21 @@ function simulateMatch(kFactor, matchmakingMode) {
   const civA = civs[randomInt(civs.length)];
   const civB = civs[randomInt(civs.length)];
 
-  const ratingExpectation = 1 / (1 + Math.pow(10, (playerB.rating - playerA.rating) / 400));
   const civExpectation = civA.strength / (civA.strength + civB.strength);
-  const skillExpectation = playerA.skill / (playerA.skill + playerB.skill);
 
-  let winChanceA =
-    ratingExpectation * 0.55 +
-    civExpectation * 0.3 +
-    skillExpectation * 0.15 +
-    randomNormal(0, 0.012);
-  winChanceA = clamp(winChanceA, 0.02, 0.98);
+  let winChanceA;
+  if (matchmakingMode === "random") {
+    winChanceA = clamp(civExpectation, 0.02, 0.98);
+  } else {
+    const ratingExpectation = 1 / (1 + Math.pow(10, (playerB.rating - playerA.rating) / 400));
+    const skillExpectation = playerA.skill / (playerA.skill + playerB.skill);
+    winChanceA =
+      ratingExpectation * 0.55 +
+      civExpectation * 0.3 +
+      skillExpectation * 0.15 +
+      randomNormal(0, 0.012);
+    winChanceA = clamp(winChanceA, 0.02, 0.98);
+  }
 
   const aWins = Math.random() < winChanceA ? 1 : 0;
   const bWins = 1 - aWins;
@@ -199,9 +208,11 @@ function simulateMatch(kFactor, matchmakingMode) {
   updateCivStats(civStats, civA.name, aWins === 1);
   updateCivStats(civStats, civB.name, bWins === 1);
 
-  applyElo(playerA, playerB, aWins, kFactor);
-  updateSkill(playerA);
-  updateSkill(playerB);
+  if (matchmakingMode !== "random") {
+    applyElo(playerA, playerB, aWins, kFactor);
+    updateSkill(playerA);
+    updateSkill(playerB);
+  }
 }
 
 function createPlayers(count) {
@@ -308,11 +319,13 @@ function renderInsights() {
       const stats = civStats.get(civ.name);
       const games = stats?.games ?? 0;
       const winRate = games > 0 ? stats.wins / games : null;
+      const expectedRandom = expectedRandomWinRates.get(civ.name) ?? civ.strength;
       return {
         name: civ.name,
         strength: civ.strength,
         games,
         winRate,
+        expectedRandom,
         diff: winRate !== null ? winRate - civ.strength : null
       };
     })
@@ -335,11 +348,12 @@ function renderInsights() {
   const buildItem = (entry, type) => {
     const ratePct = (entry.winRate * 100).toFixed(1);
     const strengthPct = (entry.strength * 100).toFixed(1);
+    const expectedPct = (entry.expectedRandom * 100).toFixed(1);
     const diffPct = (entry.diff * 100).toFixed(1);
     const diffLabel = `${diffPct > 0 ? "+" : ""}${diffPct}`;
     const className = type === "over" ? "insight-highlight" : "insight-warning";
     const gamesPlayed = entry.games.toLocaleString();
-    return `<li><span class="${className}">${entry.name}</span> posted a ${ratePct}% win rate across ${gamesPlayed} games versus a ${strengthPct}% strength baseline (${diffLabel} pts).</li>`;
+    return `<li><span class="${className}">${entry.name}</span> posted a ${ratePct}% win rate across ${gamesPlayed} games versus a ${strengthPct}% strength baseline (${diffLabel} pts) and would expect ${expectedPct}% in equal-skill random matchups.</li>`;
   };
 
   const sections = [];
@@ -374,6 +388,23 @@ function setRunning(value) {
   currentState.running = value;
   simulateBtn.disabled = value;
   simulateBtn.textContent = value ? "Simulating..." : "Run Simulation";
+}
+
+function computeExpectedRandomWinRates(civList) {
+  const map = new Map();
+  const total = civList.length;
+  civList.forEach((civ) => {
+    let sum = 0;
+    civList.forEach((opponent) => {
+      if (opponent === civ) {
+        sum += 0.5;
+      } else {
+        sum += civ.strength / (civ.strength + opponent.strength);
+      }
+    });
+    map.set(civ.name, sum / total);
+  });
+  return map;
 }
 
 function wait(ms) {
