@@ -1,62 +1,78 @@
-const CIV_NAMES = [
-  "Aztecs",
-  "Berbers",
-  "Bengalis",
-  "Bohemians",
-  "Britons",
-  "Bulgarians",
-  "Burgundians",
-  "Burmese",
-  "Byzantines",
-  "Celts",
-  "Chinese",
-  "Cumans",
-  "Dravidians",
-  "Ethiopians",
-  "Franks",
-  "Georgians",
-  "Goths",
-  "Gurjaras",
-  "Hindustanis",
-  "Huns",
-  "Incas",
-  "Italians",
-  "Japanese",
-  "Khmer",
-  "Koreans",
-  "Lithuanians",
-  "Magyars",
-  "Malay",
-  "Malians",
-  "Mayans",
-  "Mongols",
-  "Persians",
-  "Poles",
-  "Portuguese",
-  "Romans",
-  "Saracens",
-  "Sicilians",
-  "Slavs",
-  "Spanish",
-  "Tatars",
-  "Teutons",
-  "Turks",
-  "Vietnamese",
-  "Vikings"
+const CIV_DATA = [
+  { name: "Chinese", winRate: 0.597 },
+  { name: "Celts", winRate: 0.576 },
+  { name: "Mayans", winRate: 0.573 },
+  { name: "Malians", winRate: 0.559 },
+  { name: "Malay", winRate: 0.558 },
+  { name: "Shu", winRate: 0.556 },
+  { name: "Khitans", winRate: 0.551 },
+  { name: "Ethiopians", winRate: 0.548 },
+  { name: "Bengalis", winRate: 0.539 },
+  { name: "Romans", winRate: 0.538 },
+  { name: "Khmer", winRate: 0.529 },
+  { name: "Mongols", winRate: 0.529 },
+  { name: "Portuguese", winRate: 0.528 },
+  { name: "Vikings", winRate: 0.523 },
+  { name: "Koreans", winRate: 0.518 },
+  { name: "Slavs", winRate: 0.516 },
+  { name: "Goths", winRate: 0.514 },
+  { name: "Gurjaras", winRate: 0.513 },
+  { name: "Huns", winRate: 0.513 },
+  { name: "Wei", winRate: 0.509 },
+  { name: "Poles", winRate: 0.508 },
+  { name: "Franks", winRate: 0.501 },
+  { name: "Bulgarians", winRate: 0.5 },
+  { name: "Wu", winRate: 0.499 },
+  { name: "Tatars", winRate: 0.496 },
+  { name: "Jurchens", winRate: 0.493 },
+  { name: "Japanese", winRate: 0.49 },
+  { name: "Byzantines", winRate: 0.49 },
+  { name: "Burmese", winRate: 0.49 },
+  { name: "Bohemians", winRate: 0.488 },
+  { name: "Persians", winRate: 0.487 },
+  { name: "Vietnamese", winRate: 0.483 },
+  { name: "Britons", winRate: 0.477 },
+  { name: "Dravidians", winRate: 0.477 },
+  { name: "Magyars", winRate: 0.472 },
+  { name: "Burgundians", winRate: 0.47 },
+  { name: "Italians", winRate: 0.47 },
+  { name: "Sicilians", winRate: 0.465 },
+  { name: "Lithuanians", winRate: 0.465 },
+  { name: "Teutons", winRate: 0.464 },
+  { name: "Armenians", winRate: 0.463 },
+  { name: "Spanish", winRate: 0.462 },
+  { name: "Berbers", winRate: 0.456 },
+  { name: "Aztecs", winRate: 0.451 },
+  { name: "Saracens", winRate: 0.446 },
+  { name: "Cumans", winRate: 0.443 },
+  { name: "Georgians", winRate: 0.438 },
+  { name: "Incas", winRate: 0.428 },
+  { name: "Hindustanis", winRate: 0.426 }
 ];
 
-const baseCivs = CIV_NAMES.map((name, index) => {
-  const baseStrength = clamp(
-    0.52 + 0.18 * Math.sin(index * 1.23) + 0.09 * Math.cos(index * 0.79),
-    0.254,
-    0.78
-  );
+const CIV_NAMES = CIV_DATA.map((civ) => civ.name);
+
+const BASE_WIN_RATE = 0.5;
+const BASE_STRENGTH = 0.5;
+const PEAK_WIN_RATE = 0.597;
+const PEAK_STRENGTH = 0.78;
+const STRENGTH_SLOPE = (PEAK_STRENGTH - BASE_STRENGTH) / (PEAK_WIN_RATE - BASE_WIN_RATE);
+const STRENGTH_INTERCEPT = BASE_STRENGTH - STRENGTH_SLOPE * BASE_WIN_RATE;
+
+const baseCivs = CIV_DATA.map(({ name, winRate }) => {
+  const baseStrength = convertWinRateToStrength(winRate);
   return {
     name,
     baseStrength,
     strength: baseStrength
   };
 });
+
+function convertWinRateToStrength(winRate) {
+  const normalizedRate = clamp(winRate, 0, 1);
+  const strength = STRENGTH_SLOPE * normalizedRate + STRENGTH_INTERCEPT;
+  return clamp(strength, 0, 1);
+}
 
 const civs = baseCivs;
 
@@ -150,7 +166,7 @@ function updateCivStrengths(scale) {
   const effectiveScale = Number.isFinite(scale) ? scale : 1;
   strengthSpread = effectiveScale;
   civs.forEach((civ) => {
-    const adjusted = clamp(0.5 + (civ.baseStrength - 0.5) * strengthSpread, 0.18, 0.92);
+    const adjusted = clamp(0.5 + (civ.baseStrength - 0.5) * strengthSpread, 0.05, 0.95);
     civ.strength = Number(adjusted.toFixed(3));
   });
   expectedRandomWinRates = computeExpectedRandomWinRates(civs);
