@@ -166,7 +166,7 @@ function updateCivStrengths(scale) {
   const effectiveScale = Number.isFinite(scale) ? scale : 1;
   strengthSpread = effectiveScale;
   civs.forEach((civ) => {
-    const adjusted = clamp(0.5 + (civ.baseStrength - 0.5) * strengthSpread, 0.05, 0.95);
+    const adjusted = 0.5 + (civ.baseStrength - 0.5) * strengthSpread;
     civ.strength = Number(adjusted.toFixed(3));
   });
   expectedRandomWinRates = computeExpectedRandomWinRates(civs);
