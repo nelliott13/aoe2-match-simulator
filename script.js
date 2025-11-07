@@ -77,7 +77,8 @@ function convertWinRateToStrength(winRate) {
 const civs = baseCivs;
 
 let expectedRandomWinRates = new Map();
-let strengthSpread = 1;
+const DEFAULT_STRENGTH_SPREAD = 1.4;
+let strengthSpread = DEFAULT_STRENGTH_SPREAD;
 
 const tableBody = document.querySelector("#civTable tbody");
 const simulateBtn = document.querySelector("#simulateBtn");
@@ -123,14 +124,16 @@ simulateBtn.addEventListener("click", () => {
 function initialize() {
   currentState.civStats = initializeCivStats();
 
-  const initialSpread = strengthSpreadInput ? Number(strengthSpreadInput.value) || 1 : 1;
+  const initialSpread = strengthSpreadInput
+    ? Number(strengthSpreadInput.value) || DEFAULT_STRENGTH_SPREAD
+    : DEFAULT_STRENGTH_SPREAD;
   updateStrengthSpreadValue(initialSpread);
   updateCivStrengths(initialSpread);
   updateTable();
 
   if (strengthSpreadInput) {
     strengthSpreadInput.addEventListener("input", (event) => {
-      const scale = Number(event.target.value) || 1;
+      const scale = Number(event.target.value) || DEFAULT_STRENGTH_SPREAD;
       updateStrengthSpreadValue(scale);
       if (currentState.running) {
         return;
@@ -163,7 +166,7 @@ function initialize() {
 }
 
 function updateCivStrengths(scale) {
-  const effectiveScale = Number.isFinite(scale) ? scale : 1;
+  const effectiveScale = Number.isFinite(scale) ? scale : DEFAULT_STRENGTH_SPREAD;
   strengthSpread = effectiveScale;
   civs.forEach((civ) => {
     const adjusted = 0.5 + (civ.baseStrength - 0.5) * strengthSpread;
