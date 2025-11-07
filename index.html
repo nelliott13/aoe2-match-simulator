@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AoE2 Civ Win Rate Simulator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="panel header">
+      <h1>AoE II Civilization Win Rate Simulator</h1>
+      <p class="subtitle">Observe how ELO matchmaking keeps civilizations hovering near 50% win rate, regardless of how strong or weak they are.</p>
+    </header>
+
+    <section class="panel controls">
+      <div class="control-group">
+        <label for="playerCount">Players</label>
+        <input type="number" id="playerCount" min="10" max="5000" step="10" value="1000" />
+      </div>
+      <div class="control-group">
+        <label for="matchCount">Matches</label>
+        <input type="number" id="matchCount" min="100" max="20000" step="100" value="5000" />
+      </div>
+      <div class="control-group">
+        <label for="kFactor">ELO K-Factor</label>
+        <input type="number" id="kFactor" min="8" max="64" step="2" value="24" />
+      </div>
+      <div class="control-group">
+        <label for="speed">Visualization Speed</label>
+        <select id="speed">
+          <option value="fast">Fast</option>
+          <option value="medium" selected>Medium</option>
+          <option value="slow">Slow</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="strengthSpread">Civ Strength Spread <span id="strengthSpreadValue">1.00x</span></label>
+        <input type="range" id="strengthSpread" min="0.5" max="2" step="0.05" value="1" />
+      </div>
+      <div class="control-group">
+        <label for="matchmakingMode">Matchmaking Mode</label>
+        <select id="matchmakingMode">
+          <option value="elo" selected>Elo Matchmaking</option>
+          <option value="random">Random Matchmaking</option>
+        </select>
+      </div>
+      <button id="simulateBtn" class="simulate-btn">Run Simulation</button>
+    </section>
+
+    <section class="panel params-panel">
+      <header class="panel-header">
+        <h2>Simulation Parameters</h2>
+      </header>
+      <ul class="params-list">
+        <li>ELO player drift assigned matching a typical skill distribution curve found in competitive games.</li>
+        <li>In ELO matchmaking, players match against opponents within 100 ELO whenever possible.</li>
+        <li>Each simulated match randomly assigns civilizations to both players; mirrors are allowed.</li>
+        <li>Random matchmaking ignores ELO pairings and relies solely on civilization strength for outcomes.</li>
+        <li>The civ strength spread control exaggerates or flattens balance differences before each simulation.</li>
+        <li>Visualization updates stream in batches so progress feels alive without instant jumps.</li>
+      </ul>
+    </section>
+
+    <section class="panel status">
+      <div class="status-item">
+        <span class="label">Matches Simulated</span>
+        <span class="value" id="matchTicker">0</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Players Active</span>
+        <span class="value" id="playerTicker">0</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Average Civ Strength</span>
+        <span class="value" id="avgStrength">0.000</span>
+      </div>
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="status-log" id="statusLog">Ready.</div>
+    </section>
+
+    <section class="panel table-panel">
+      <header class="panel-header">
+        <h2>Civilization Performance</h2>
+        <p>Strength is the theoretical balance point; win rate is measured from simulated results.</p>
+      </header>
+      <div class="table-wrapper">
+        <table id="civTable">
+          <thead>
+            <tr>
+              <th>Civilization</th>
+              <th>Strength</th>
+              <th>Expected (Equal Skill)</th>
+              <th>Win Rate</th>
+              <th>Matches</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel insights" id="insightsPanel">
+      <header class="panel-header">
+        <h2>Simulation Insights</h2>
+        <p>Dive into civs that notably over- or under-performed versus their theoretical strength.</p>
+      </header>
+      <div class="insights-content" id="insightsContent">
+        Run a simulation to uncover which civilizations buck the balance curve.
+      </div>
+    </section>
+
+    <section class="panel conclusions" id="conclusionsPanel" aria-live="polite">
+      <header class="panel-header">
+        <h2>Author’s conclusions</h2>
+      </header>
+      <div class="conclusions-body">
+        <p>Win rates by civilization do not reflect their strength. i.e. if a civ is 70% stronger on average than all other civs, it will only have a slightly higher than 50% win rate, instead of 70% (expected).</p>
+        <p>This does not demonstrate that civs in aoe de are imbalanced. It only demonstrates that if civs are imbalanced, <strong>it will not reflect properly in the win rates for civilizations.</strong></p>
+        <p>Therefore, win rates <em>should not be used</em> to determine civ strength or for civ balancing purposes, since even small win rate differences could be hiding or understating <strong>massive civ imbalances</strong>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Created by ForgeableSum and inspired by the compulsive desire to prove neckbeards wrong on the internet. No rights reserved.</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
