@@ -65,6 +65,7 @@ const avgStrengthEl = document.querySelector("#avgStrength");
 const progressBar = document.querySelector("#progressBar");
 const statusLog = document.querySelector("#statusLog");
 const speedSelect = document.querySelector("#speed");
+const insightsContent = document.querySelector("#insightsContent");
 
 let currentState = {
   running: false,
@@ -95,6 +96,7 @@ function initialize() {
   const avgStrength =
     civs.reduce((sum, civ) => sum + civ.strength, 0) / civs.length;
   avgStrengthEl.textContent = avgStrength.toFixed(3);
+  setInsightsMessage("Run a simulation to uncover which civilizations buck the balance curve.");
   const fragment = document.createDocumentFragment();
   civs
     .slice()
@@ -122,6 +124,7 @@ function initialize() {
 async function runSimulation({ playerCount, matchCount, kFactor }) {
   setRunning(true);
   pushStatus(`Generating ${playerCount} players and scheduling ${matchCount.toLocaleString()} matches.`);
+  setInsightsMessage("Crunching numbers &mdash; insights will refresh when the simulation completes.");
 
   currentState.players = createPlayers(playerCount);
   currentState.civStats = initializeCivStats();
@@ -161,6 +164,7 @@ async function runSimulation({ playerCount, matchCount, kFactor }) {
   updateTable();
   updateProgress(true);
   pushStatus("Simulation complete. Balance restored through ELO!");
+  renderInsights();
   setRunning(false);
 }
 
@@ -263,8 +267,8 @@ function updateTable() {
     } else {
       const rate = stats.winRate;
       winRateCell.textContent = `${(rate * 100).toFixed(1)}%`;
-      winRateCell.classList.toggle("positive", rate > civ.strength);
-      winRateCell.classList.toggle("negative", rate < civ.strength);
+      winRateCell.classList.toggle("positive", rate > 0.5);
+      winRateCell.classList.toggle("negative", rate < 0.5);
       matchCell.textContent = stats.games.toLocaleString();
     }
   });
@@ -285,6 +289,81 @@ function updateProgress(final = false) {
 
 function pushStatus(message) {
   statusLog.textContent = message;
+}
+
+function setInsightsMessage(message) {
+  if (!insightsContent) return;
+  insightsContent.innerHTML = `<p>${message}</p>`;
+}
+
+function renderInsights() {
+  if (!insightsContent) return;
+  const { civStats, totalMatches } = currentState;
+  const results = civs
+    .map((civ) => {
+      const stats = civStats.get(civ.name);
+      const games = stats?.games ?? 0;
+      const winRate = games > 0 ? stats.wins / games : null;
+      return {
+        name: civ.name,
+        strength: civ.strength,
+        games,
+        winRate,
+        diff: winRate !== null ? winRate - civ.strength : null
+      };
+    })
+    .filter((entry) => entry.winRate !== null && entry.games >= Math.max(30, Math.round(totalMatches * 0.003)));
+
+  if (results.length === 0) {
+    setInsightsMessage("Not enough data yet. Try running a longer simulation to surface meaningful outliers.");
+    return;
+  }
+
+  const overperformers = results
+    .filter((entry) => entry.diff > 0.02)
+    .sort((a, b) => b.diff - a.diff)
+    .slice(0, 3);
+  const underperformers = results
+    .filter((entry) => entry.diff < -0.02)
+    .sort((a, b) => a.diff - b.diff)
+    .slice(0, 3);
+
+  const buildItem = (entry, type) => {
+    const ratePct = (entry.winRate * 100).toFixed(1);
+    const strengthPct = (entry.strength * 100).toFixed(1);
+    const diffPct = (entry.diff * 100).toFixed(1);
+    const diffLabel = `${diffPct > 0 ? "+" : ""}${diffPct}`;
+    const className = type === "over" ? "insight-highlight" : "insight-warning";
+    const gamesPlayed = entry.games.toLocaleString();
+    return `<li><span class="${className}">${entry.name}</span> posted a ${ratePct}% win rate across ${gamesPlayed} games versus a ${strengthPct}% strength baseline (${diffLabel} pts).</li>`;
+  };
+
+  const sections = [];
+  sections.push(`<p>Reviewed ${totalMatches.toLocaleString()} simulated matches to gauge balance drift.</p>`);
+
+  if (overperformers.length > 0) {
+    sections.push(
+      `<div><strong>Overperforming civs</strong><ul class="insight-list">${overperformers
+        .map((entry) => buildItem(entry, "over"))
+        .join("")}</ul></div>`
+    );
+  }
+
+  if (underperformers.length > 0) {
+    sections.push(
+      `<div><strong>Underperforming civs</strong><ul class="insight-list">${underperformers
+        .map((entry) => buildItem(entry, "under"))
+        .join("")}</ul></div>`
+    );
+  }
+
+  if (sections.length === 1) {
+    sections.push(
+      `<p>The remaining civilizations tracked closely with their theoretical strength &mdash; evidence the Elo system kept the field in check.</p>`
+    );
+  }
+
+  insightsContent.innerHTML = sections.join("");
 }
 
 function setRunning(value) {

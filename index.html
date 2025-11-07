@@ -66,13 +66,29 @@
           <thead>
             <tr>
               <th>Civilization</th>
-              <th>Strength</th>
+              <th>
+                Strength
+                <span class="help-icon" role="img" aria-label="Strength help" tabindex="0">?</span>
+                <span class="help-tooltip" role="tooltip">
+                  Strength is a notional balance factor. In a matchup it influences win odds, e.g. a 0.70 strength civ versus a 0.50 strength civ would expect about a 58% win chance.
+                </span>
+              </th>
               <th>Win Rate</th>
               <th>Matches</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
+      </div>
+    </section>
+
+    <section class="panel insights" id="insightsPanel">
+      <header class="panel-header">
+        <h2>Simulation Insights</h2>
+        <p>Dive into civs that notably over- or under-performed versus their theoretical strength.</p>
+      </header>
+      <div class="insights-content" id="insightsContent">
+        Run a simulation to uncover which civilizations buck the balance curve.
       </div>
     </section>
   </main>
