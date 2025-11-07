@@ -336,15 +336,19 @@ tbody td {
   font-variant-numeric: tabular-nums;
 }
 
-.win-rate {
+.win-rate,
+.difference {
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-.win-rate.positive {
+.win-rate.positive,
+.difference.positive {
   color: #7ee787;
 }
 
-.win-rate.negative {
+.win-rate.negative,
+.difference.negative {
   color: var(--danger);
 }
 

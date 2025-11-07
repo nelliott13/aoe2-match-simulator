@@ -193,6 +193,7 @@ function renderCivTable() {
         </td>
         <td class="expected-rate" data-civ="${civ.name}">${(expectedRate * 100).toFixed(1)}%</td>
         <td class="win-rate" data-civ="${civ.name}">--</td>
+        <td class="difference" data-civ="${civ.name}">--</td>
         <td class="match-count" data-civ="${civ.name}">0</td>
       `;
       fragment.appendChild(row);
@@ -361,19 +362,38 @@ function updateSkill(player) {
 function updateTable() {
   const { civStats } = currentState;
   civs.forEach((civ) => {
+    const expectedCell = tableBody.querySelector(`.expected-rate[data-civ="${civ.name}"]`);
     const winRateCell = tableBody.querySelector(`.win-rate[data-civ="${civ.name}"]`);
+    const diffCell = tableBody.querySelector(`.difference[data-civ="${civ.name}"]`);
     const matchCell = tableBody.querySelector(`.match-count[data-civ="${civ.name}"]`);
     const stats = civStats.get(civ.name);
-    if (!stats || !winRateCell || !matchCell) return;
+    const expectedRate = expectedRandomWinRates.get(civ.name) ?? civ.strength;
+
+    if (expectedCell) {
+      expectedCell.textContent = `${(expectedRate * 100).toFixed(1)}%`;
+    }
+
+    if (!stats || !winRateCell || !matchCell || !diffCell) return;
     if (stats.games === 0) {
       winRateCell.textContent = "--";
       winRateCell.classList.remove("positive", "negative");
+      diffCell.textContent = "--";
+      diffCell.classList.remove("positive", "negative");
       matchCell.textContent = "0";
     } else {
       const rate = stats.winRate;
       winRateCell.textContent = `${(rate * 100).toFixed(1)}%`;
       winRateCell.classList.toggle("positive", rate > 0.5);
       winRateCell.classList.toggle("negative", rate < 0.5);
+      const diff = rate - expectedRate;
+      const diffPct = (diff * 100).toFixed(1);
+      const formattedDiff = diff > 0 ? `+${diffPct}%` : `${diffPct}%`;
+      diffCell.textContent = formattedDiff;
+      diffCell.classList.toggle("positive", diff > 0);
+      diffCell.classList.toggle("negative", diff < 0);
+      if (diff === 0) {
+        diffCell.classList.remove("positive", "negative");
+      }
       matchCell.textContent = stats.games.toLocaleString();
     }
   });
