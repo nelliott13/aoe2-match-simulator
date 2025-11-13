@@ -292,7 +292,8 @@ function simulateMatch(kFactor, matchmakingMode) {
       ratingExpectation * 0.55 +
       civExpectation * 0.3 +
       skillExpectation * 0.15 +
-      randomNormal(0, 0.012);
+      //randomNormal(0, 0.012)
+      ;
     winChanceA = clamp(winChanceA, 0.02, 0.98);
   }
 
