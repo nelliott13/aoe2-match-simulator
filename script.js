@@ -287,11 +287,9 @@ function simulateMatch(kFactor, matchmakingMode) {
     winChanceA = clamp(civExpectation, 0.02, 0.98);
   } else {
     const ratingExpectation = 1 / (1 + Math.pow(10, (playerB.rating - playerA.rating) / 400));
-    const skillExpectation = playerA.skill / (playerA.skill + playerB.skill);
     winChanceA =
-      //ratingExpectation * 0.55 +
-      civExpectation * 0.5 +
-      skillExpectation * 0.5;
+      ratingExpectation * 0.5 +
+      civExpectation * 0.5;
       //randomNormal(0, 0.012)
     winChanceA = clamp(winChanceA, 0.02, 0.98);
   }
@@ -304,22 +302,15 @@ function simulateMatch(kFactor, matchmakingMode) {
 
   if (matchmakingMode !== "random") {
     applyElo(playerA, playerB, aWins, kFactor);
-    updateSkill(playerA);
-    updateSkill(playerB);
   }
 }
 
 function createPlayers(count) {
   const players = [];
   for (let i = 0; i < count; i++) {
-    const skill = clamp(0.5 + randomNormal(0, 0.12), 0.2, 0.88);
-    const skillTrend = clamp(randomNormal(0, 0.01), -0.02, 0.02);
     players.push({
       id: i,
-      rating: 1000 + randomNormal(0, 90),
-      skill,
-      skillTrend,
-      volatility: clamp(Math.abs(randomNormal(0.004, 0.002)), 0.001, 0.012)
+      rating: 1000 + randomNormal(0, 90)
     });
   }
   return players;
@@ -355,11 +346,6 @@ function applyElo(playerA, playerB, aWins, kFactor) {
 
   playerA.rating += kFactor * (resultA - expectedA);
   playerB.rating += kFactor * (resultB - expectedB);
-}
-
-function updateSkill(player) {
-  const drift = player.skillTrend + randomNormal(0, player.volatility);
-  player.skill = clamp(player.skill + drift, 0.12, 0.95);
 }
 
 function updateTable() {
