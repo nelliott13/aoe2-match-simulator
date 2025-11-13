@@ -289,9 +289,9 @@ function simulateMatch(kFactor, matchmakingMode) {
     const ratingExpectation = 1 / (1 + Math.pow(10, (playerB.rating - playerA.rating) / 400));
     const skillExpectation = playerA.skill / (playerA.skill + playerB.skill);
     winChanceA =
-      ratingExpectation * 0.55 +
-      civExpectation * 0.3 +
-      skillExpectation * 0.15 +
+      //ratingExpectation * 0.55 +
+      civExpectation * 0.5 +
+      skillExpectation * 0.5
       //randomNormal(0, 0.012)
       ;
     winChanceA = clamp(winChanceA, 0.02, 0.98);
